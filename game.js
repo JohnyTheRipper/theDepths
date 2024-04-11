@@ -38,7 +38,7 @@ window.addEventListener('keyup', e => {
 
 // Game loop
 function gameLoop() {
-    // Clear canvas
+    // Clear the entire canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw ground tiles
@@ -46,11 +46,7 @@ function gameLoop() {
         ctx.drawImage(groundTile, tile.x, tile.y, tileSize, tileSize);
     });
 
-    // Draw character
-    ctx.fillStyle = '#FF0000'; // Red color for character
-    ctx.fillRect(character.x, character.y, character.width, character.height);
-
-    // Handle character movement
+    // Update character position based on input and game logic
     if (keys['ArrowLeft'] && character.x > 0) {
         character.x -= character.speed;
     }
@@ -58,7 +54,7 @@ function gameLoop() {
         character.x += character.speed;
     }
     if (keys['ArrowUp'] && !character.jumping) {
-        character.velocityY = -10; // Jump velocity
+        character.velocityY = -12; // Adjust jump velocity if needed
         character.jumping = true;
     }
 
@@ -66,7 +62,7 @@ function gameLoop() {
     character.y += character.velocityY;
     character.velocityY += 0.5; // Gravity strength
 
-    // Check for collision with ground
+    // Check for collision with ground tiles
     groundTiles.forEach(tile => {
         if (
             character.x < tile.x + tileSize &&
@@ -80,6 +76,10 @@ function gameLoop() {
             character.velocityY = 0;
         }
     });
+
+    // Draw character
+    ctx.fillStyle = '#FF0000';
+    ctx.fillRect(character.x, character.y, character.width, character.height);
 
     // Request next frame
     requestAnimationFrame(gameLoop);
