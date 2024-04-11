@@ -108,17 +108,25 @@
 
             function render() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 // Draw background tiles
-                for (let y = 0; y < numTilesVertically; y++) {
-                    for (let x = 0; x < numTilesHorizontally; x++) {
-                        const tile = tiles[y][x];
-                        ctx.fillStyle = '#ccc';
-                        const posX = x * tileSizeWidth;
-                        const posY = y * tileSizeHeight;
-                        ctx.fillRect(posX, posY, tileSizeWidth, tile.height);
-                    }
-                }
+    for (let y = 0; y < numTilesVertically; y++) {
+        for (let x = 0; x < numTilesHorizontally; x++) {
+            const tile = tiles[y][x];
+            // ctx.fillStyle = '#ccc'; // Remove this line
+            const posX = x * tileSizeWidth;
+            const posY = y * tileSizeHeight;
+            // ctx.fillRect(posX, posY, tileSizeWidth, tile.height); // Remove this line
+
+            // Draw tile image
+            // Replace 'tileImage.png' with the path to your background tile image
+            const tileImage = new Image();
+            tileImage.src = 'background/Yellow.png'; // Path to your background tile image
+
+            tileImage.onload = function() {
+                ctx.drawImage(tileImage, posX, posY, tileSizeWidth, tile.height);
+            };
+        }
+    }
 
                 // Draw player
                 ctx.fillStyle = 'blue';
