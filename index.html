@@ -3,14 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Side View Platformer</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Smooth Side View Platformer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+    </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="game-canvas" width="800" height="400"></canvas>
-    </div>
+    <canvas id="gameCanvas"></canvas>
 
-    <script src="game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const canvasWidth = screenWidth - 50;
+            const canvasHeight = screenHeight;
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            const numTilesHorizontally = 20;
+            const numTilesVertically = 15;
+
+            const tileSizeWidth = canvasWidth / numTilesHorizontally;
+            const tileSizeHeight = canvasHeight / numTilesVertically;
+
+            function calculateTileHeight() {
+                return tileSizeHeight;
+            }
+
+            const tiles = [];
+
+            for (let y = 0; y < numTilesVertically; y++) {
+                tiles[y] = [];
+                for (let x = 0; x < numTilesHorizontally; x++) {
+                    tiles[y][x] = {
+                        height: calculateTileHeight()
+                    };
+                }
+            }
+
+            const player = {
+                x: 50,
+                y: canvasHeight - tileSizeHeight - 50,
+                width: 30,
+                height: 50,
+                speed: 200 // Adjust speed for smooth movement (pixels per second)
+            };
+
+            let keys = {};
+
+            function handleKeyDown(event) {
+                keys[event.key] = true;
+            }
+
+            function handleKeyUp(event) {
+                keys[event.key] = false;
+            }
+
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+
+            let lastTime = performance.now();
+
+            function update() {
+                const currentTime = performance.now();
+                const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+
+                if (keys['ArrowLeft'] && player.x > 0) {
+                    player.x -= player.speed * deltaTime;
+                }
+                if (keys['ArrowRight'] && player.x + player.width < canvasWidth) {
+                    player.x += player.speed * deltaTime;
+                }
+
+                lastTime = currentTime;
+
+                render();
+                requestAnimationFrame(update);
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let y = 0; y < numTilesVertically; y++) {
+                    for (let x = 0; x < numTilesHorizontally; x++) {
+                        const tile = tiles[y][x];
+                        ctx.fillStyle = '#ccc';
+                        const posX = x * tileSizeWidth;
+                        const posY = y * tileSizeHeight;
+                        ctx.fillRect(posX, posY, tileSizeWidth, tile.height);
+                    }
+                }
+
+                ctx.fillStyle = 'blue';
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+            }
+
+            update(); // Start the game loop
+        });
+    </script>
 </body>
 </html>
