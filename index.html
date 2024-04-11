@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smooth Side View Platformer</title>
+    <title>Side View Platformer with Smooth Jumping</title>
     <style>
         body {
             margin: 0;
@@ -43,7 +43,6 @@
             }
 
             const tiles = [];
-
             for (let y = 0; y < numTilesVertically; y++) {
                 tiles[y] = [];
                 for (let x = 0; x < numTilesHorizontally; x++) {
@@ -58,7 +57,11 @@
                 y: canvasHeight - tileSizeHeight - 50,
                 width: 30,
                 height: 50,
-                speed: 200 // Adjust speed for smooth movement (pixels per second)
+                speed: 300,
+                jumpVelocity: -500,
+                gravity: 2000,
+                isJumping: false,
+                velocityY: 0
             };
 
             let keys = {};
@@ -74,12 +77,8 @@
             document.addEventListener('keydown', handleKeyDown);
             document.addEventListener('keyup', handleKeyUp);
 
-            let lastTime = performance.now();
-
-            function update() {
-                const currentTime = performance.now();
-                const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
-
+            function update(deltaTime) {
+                // Handle horizontal movement
                 if (keys['ArrowLeft'] && player.x > 0) {
                     player.x -= player.speed * deltaTime;
                 }
@@ -87,15 +86,30 @@
                     player.x += player.speed * deltaTime;
                 }
 
-                lastTime = currentTime;
+                // Handle jumping
+                if ((keys['ArrowUp'] || keys[' ']) && !player.isJumping) {
+                    player.isJumping = true;
+                    player.velocityY = player.jumpVelocity;
+                }
 
-                render();
-                requestAnimationFrame(update);
+                // Apply gravity
+                if (player.isJumping) {
+                    player.velocityY += player.gravity * deltaTime;
+                    player.y += player.velocityY * deltaTime;
+
+                    // Check collision with ground
+                    if (player.y + player.height >= canvasHeight - tileSizeHeight) {
+                        player.isJumping = false;
+                        player.y = canvasHeight - tileSizeHeight - player.height;
+                        player.velocityY = 0;
+                    }
+                }
             }
 
             function render() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+                // Draw background tiles
                 for (let y = 0; y < numTilesVertically; y++) {
                     for (let x = 0; x < numTilesHorizontally; x++) {
                         const tile = tiles[y][x];
@@ -106,11 +120,24 @@
                     }
                 }
 
+                // Draw player
                 ctx.fillStyle = 'blue';
                 ctx.fillRect(player.x, player.y, player.width, player.height);
             }
 
-            update(); // Start the game loop
+            function gameLoop() {
+                const currentTime = performance.now();
+                const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+
+                update(deltaTime);
+                render();
+
+                lastTime = currentTime;
+                requestAnimationFrame(gameLoop);
+            }
+
+            let lastTime = performance.now();
+            gameLoop(); // Start the game loop
         });
     </script>
 </body>
